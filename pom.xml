@@ -9,6 +9,15 @@
 
     <name>Kattekoop</name>
 
+    <properties>
+        <spring-framework.version>4.2.5.RELEASE</spring-framework.version>
+        <org.hibernate.version>5.1.0.Final</org.hibernate.version>
+        <jetty.version>8.1.12.v20130726</jetty.version>
+        <jersey.version>LATEST</jersey.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <activemq.version>5.10.0</activemq.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
