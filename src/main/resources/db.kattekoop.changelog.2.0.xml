@@ -11,5 +11,12 @@
             </column>
             <column name="NAAM" type="varchar(100)"/>
         </createTable>
+        <createTable tableName="ADVERTENTIE">
+            <column name="ID" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="TITEL" type="varchar(100)"/>
+            <column name="CATTERY" type="int"/>
+        </createTable>
     </changeSet>
 </databaseChangeLog>
