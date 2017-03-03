@@ -5,12 +5,11 @@ import nl.kattekoop.domain.Cattery;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -28,59 +27,38 @@ public class CatteryRepository {
         return sessionFactory.getCurrentSession();
     }
 
-    protected Transaction getTransaction() {
-        Transaction transaction = getSession().getTransaction();
-        if (transaction.getStatus() != TransactionStatus.ACTIVE) {
-            transaction.begin();
-        }
-
-        return transaction;
-    }
-
+    @Transactional
     public void opslaan(Cattery cattery) {
         LOGGER.debug("Opslaan Cattery");
-        getTransaction();
 
         if (cattery.getId() == null) {
             getSession().save(cattery);
         } else {
             getSession().merge(cattery);
         }
-
-        getTransaction().commit();
     }
 
+    @Transactional(readOnly = true)
     public List<Cattery> alles() {
-        getTransaction();
 
         Query query = getSession().createQuery("select c from Cattery c");
 
         List<Cattery> catteries = query.list();
 
-        getTransaction().commit();
-
         return catteries;
     }
 
+    @Transactional
     public void verwijder(Cattery cat) {
-        getTransaction();
-
         Cattery cattery = getSession().get(Cattery.class, cat.getId());
         for (Advertentie advertentie : cattery.getAdvertenties()) {
-            advertentieRepository.verwijder(advertentie, false);
+            advertentieRepository.verwijder(advertentie);
         }
         getSession().delete(cattery);
-
-        getTransaction().commit();
     }
 
+    @Transactional(readOnly = true)
     public Cattery lees(Long id) {
-        getTransaction();
-
-        Cattery cattery = getSession().get(Cattery.class, id);
-
-        getTransaction().commit();
-
-        return cattery;
+        return getSession().get(Cattery.class, id);
     }
 }

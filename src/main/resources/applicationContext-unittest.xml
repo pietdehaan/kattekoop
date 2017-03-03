@@ -1,51 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd">
 
-    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
-
+    <tx:annotation-driven/>
     <context:component-scan base-package="nl.kattekoop.repository"/>
-    <context:annotation-config/>
-
-    <bean id="MariaDbServer" class="nl.kattekoop.mariadbserver.MariaDBServer" init-method="init">
-        <property name="poortNummer" value="3319"/>
-    </bean>
-
-    <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource" depends-on="MariaDbServer">
-        <!--<property name="uniqueResourceName" value="NonXA_DataSource" />-->
-        <!--<property name="minPoolSize" value="2" />-->
-        <!--<property name="maxPoolSize" value="30" />-->
-        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-
-        <!--<property name="url" value="jdbc:mysql://localhost:3306/kattekoop" />-->
-        <!--<property name="username" value="dev" />-->
-        <!--<property name="password" value="dev" />-->
-        <property name="url" value="jdbc:mysql://localhost:3319/test"/>
-        <property name="username" value=""/>
-        <property name="password" value=""/>
-    </bean>
-
-    <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
-        <property name="dataSource" ref="dataSource"/>
-        <property name="packagesToScan">
-            <list>
-                <value>nl.kattekoop</value>
-            </list>
-        </property>
-        <property name="hibernateProperties">
-            <props>
-                <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
-                <prop key="hibernate.current_session_context_class">thread</prop>
-                <prop key="hibernate.show_sql">true</prop>
-            </props>
-        </property>
-    </bean>
+    <mvc:annotation-driven/>
 
     <bean id="liquibase" class="liquibase.integration.spring.SpringLiquibase">
         <property name="dataSource" ref="dataSource"/>
         <property name="changeLog" value="classpath:databaseChangeLog.xml"/>
     </bean>
 
+    <bean id="MariaDbServer" class="nl.kattekoop.mariadbserver.MariaDBServer" init-method="init">
+        <property name="poortNummer" value="3319"/>
+    </bean>
+
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close"
+          depends-on="MariaDbServer">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <!--<property name="url" value="jdbc:mysql://localhost:3306/kattekoop"/>-->
+        <!--<property name="username" value="dev"/>-->
+        <!--<property name="password" value="dev"/>-->
+        <property name="url" value="jdbc:mysql://localhost:3319/test"/>
+        <property name="username" value=""/>
+        <property name="password" value=""/>
+    </bean>
+
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean" depends-on="liquibase">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="packagesToScan" value="nl.kattekoop"/>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.format_sql">true</prop>
+                <prop key="hibernate.use_sql_comments">true</prop>
+                <prop key="hibernate.hbm2ddl.auto">validate</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean
+            class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"
+            id="PersistenceExceptionTranslator"/>
+
+    <bean id="transactionManager"
+          class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
 </beans>

@@ -6,17 +6,17 @@
 
     <changeSet id="1" author="Patrick Heidotting">
         <createTable tableName="CATTERY">
-            <column name="ID" type="int" autoIncrement="true">
+            <column name="ID" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="NAAM" type="varchar(100)"/>
         </createTable>
         <createTable tableName="ADVERTENTIE">
-            <column name="ID" type="int" autoIncrement="true">
+            <column name="ID" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="TITEL" type="varchar(100)"/>
-            <column name="CATTERY" type="int"/>
+            <column name="CATTERY" type="BIGINT"/>
         </createTable>
     </changeSet>
 </databaseChangeLog>
